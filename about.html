@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sasha Zaiats — Senior Product Designer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F5F4F0;
+      --text: #1A1A1A;
+      --gold: #C8B560;
+      --border: #E5E3DC;
+      --muted: #6B6B6B;
+      --nav-width: 200px;
+      --card-width: 260px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: var(--nav-width) 1fr var(--card-width);
+      gap: 0;
+      min-height: 100vh;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ── Left Nav ── */
+    .sidebar-nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 48px 0 48px 0;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sidebar-nav .nav-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 20px 12px 20px;
+    }
+
+    .sidebar-nav a {
+      display: block;
+      padding: 9px 20px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 400;
+      border-left: 3px solid transparent;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      cursor: pointer;
+    }
+
+    .sidebar-nav a:hover {
+      color: var(--gold);
+      background: rgba(200, 181, 96, 0.05);
+    }
+
+    .sidebar-nav a.active {
+      color: var(--gold);
+      border-left-color: var(--gold);
+      font-weight: 500;
+      background: rgba(200, 181, 96, 0.06);
+    }
+
+    /* ── Main Content ── */
+    .main-content {
+      padding: 48px 52px;
+      min-height: 100vh;
+    }
+
+    /* Sections */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── Overview ── */
+    .section-headline {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .section-subhead {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 400;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-body p {
+      margin-bottom: 16px;
+      font-size: 14px;
+      line-height: 1.75;
+      color: #2A2A2A;
+    }
+
+    .section-body p:last-child { margin-bottom: 0; }
+
+    /* ── Section titles (non-Overview) ── */
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin-bottom: 6px;
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+
+    /* ── Approach Cards ── */
+    .approach-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .approach-card {
+      background: #EFEDE7;
+      border-left: 3px solid var(--gold);
+      padding: 20px 20px 20px 18px;
+    }
+
+    .approach-card h3 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .approach-card p {
+      font-size: 13px;
+      color: #4A4A4A;
+      line-height: 1.65;
+    }
+
+    /* ── Background ── */
+    .background-body p {
+      font-size: 14px;
+      line-height: 1.75;
+      color: #2A2A2A;
+      margin-bottom: 16px;
+    }
+
+    .background-body p:last-child { margin-bottom: 0; }
+
+    /* ── Experience Timeline ── */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding: 0 0 32px 28px;
+      border-left: 1px solid var(--border);
+    }
+
+    .timeline-item:last-child {
+      border-left: 1px solid transparent;
+      padding-bottom: 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -5px;
+      top: 4px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--gold);
+      border: 2px solid var(--bg);
+      outline: 1.5px solid var(--gold);
+    }
+
+    .timeline-org {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .timeline-role {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .timeline-desc {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #3A3A3A;
+    }
+
+    /* ── Beyond Work ── */
+    .beyond-intro {
+      font-size: 14px;
+      line-height: 1.75;
+      color: #2A2A2A;
+      margin-bottom: 28px;
+    }
+
+    .interests-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .interest-block {
+      background: #EFEDE7;
+      border: 1px solid var(--border);
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .interest-block .emoji {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .interest-block .label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .quote-block {
+      border-left: 3px solid var(--gold);
+      padding: 16px 20px;
+      background: #EFEDE7;
+    }
+
+    .quote-block p {
+      font-size: 14px;
+      font-style: italic;
+      color: #3A3A3A;
+      line-height: 1.65;
+    }
+
+    /* ── Right Info Card ── */
+    .info-card {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 48px 24px 48px 28px;
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow-y: auto;
+    }
+
+    .info-photo {
+      width: 200px;
+      height: 200px;
+      background: var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .info-name {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+
+    .info-title {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 400;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .info-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .info-table {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .info-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .info-row .key {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .info-row .val {
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    .info-row .val a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .info-row .val a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- LEFT NAV -->
+  <nav class="sidebar-nav" aria-label="Page sections">
+    <span class="nav-label">Contents</span>
+    <a href="#overview"    class="nav-link active" data-section="overview">Overview</a>
+    <a href="#approach"    class="nav-link"         data-section="approach">Approach</a>
+    <a href="#background"  class="nav-link"         data-section="background">Background</a>
+    <a href="#experience"  class="nav-link"         data-section="experience">Experience</a>
+    <a href="#beyond-work" class="nav-link"         data-section="beyond-work">Beyond Work</a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- OVERVIEW -->
+    <section id="overview" class="section active">
+      <h1 class="section-headline">Sasha Zaiats</h1>
+      <p class="section-subhead">Product Designer &amp; Builder &nbsp;|&nbsp; AI-Driven Platforms &nbsp;|&nbsp; Conversational &amp; Agentic Systems</p>
+      <div class="section-body">
+        <p>Sasha is a Product Designer based in Toronto with a background in economics and strategy. She designs intelligent, data-intensive systems that translate complex AI capabilities into intuitive, production-ready experiences — making them clear, trustworthy, and enjoyable.</p>
+        <p>At Boosted.ai, she designed AI tools for investment teams overseeing $7T+ in AUM, led end-to-end design of AI Chat &amp; Voice experiences, and re-architected core workflows for portfolio managers and quant researchers operating in complex financial systems. She drove +34% growth in product adoption.</p>
+        <p>She co-founded Milestone, a B2B SaaS gamified onboarding platform, leading product from 0→1 and reaching #1 Product of the Day &amp; Week on Product Hunt.</p>
+      </div>
+    </section>
+
+    <!-- APPROACH -->
+    <section id="approach" class="section">
+      <h2 class="section-title">Approach</h2>
+      <hr class="section-divider" />
+      <div class="approach-grid">
+        <div class="approach-card">
+          <h3>Human-Centered Design</h3>
+          <p>Every decision starts with understanding people — their goals, frustrations, and contexts.</p>
+        </div>
+        <div class="approach-card">
+          <h3>Data-Informed Decisions</h3>
+          <p>Qualitative empathy paired with quantitative rigor to validate assumptions and measure impact.</p>
+        </div>
+        <div class="approach-card">
+          <h3>Systems Thinking</h3>
+          <p>Designing for scalability and consistency through modular, interconnected systems.</p>
+        </div>
+        <div class="approach-card">
+          <h3>Business Alignment</h3>
+          <p>Design solutions that serve user needs while advancing measurable business objectives.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- BACKGROUND -->
+    <section id="background" class="section">
+      <h2 class="section-title">Background</h2>
+      <hr class="section-divider" />
+      <div class="background-body">
+        <p>Originally from Kyiv, now based in Toronto. An economics degree shaped the way she thinks — in systems, tradeoffs, and second-order effects — skills that translate directly into product thinking.</p>
+        <p>She has worked across fintech, AI, startups, and ecommerce — environments where design decisions have direct, measurable impact on business outcomes. She operates at the intersection of user needs and business strategy, where design becomes a vehicle for growth.</p>
+      </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section id="experience" class="section">
+      <h2 class="section-title">Experience</h2>
+      <hr class="section-divider" />
+      <div class="timeline">
+
+        <div class="timeline-item">
+          <span class="timeline-dot"></span>
+          <div class="timeline-org">Boosted.ai</div>
+          <div class="timeline-role">Product Designer &nbsp;·&nbsp; Dec 2022 – Feb 2026</div>
+          <p class="timeline-desc">Designed AI-powered investment workflows for an institutional platform overseeing $7T+ in AUM. Led AI Chat &amp; Voice, Financial Agents, Prompt Library. +34% adoption growth, contributed to 2× revenue growth.</p>
+        </div>
+
+        <div class="timeline-item">
+          <span class="timeline-dot"></span>
+          <div class="timeline-org">Milestone</div>
+          <div class="timeline-role">Co-Founder, Head of Product &amp; Design &nbsp;·&nbsp; Nov 2023 – May 2024</div>
+          <p class="timeline-desc">Built a B2B SaaS gamified onboarding platform from 0→1. #1 Product of the Day &amp; Week on Product Hunt. 1,090+ upvotes, 450+ waitlist, 10+ paying customers.</p>
+        </div>
+
+        <div class="timeline-item">
+          <span class="timeline-dot"></span>
+          <div class="timeline-org">Independent Consultant</div>
+          <div class="timeline-role">Product Design &nbsp;·&nbsp; Feb 2021 – Present</div>
+          <p class="timeline-desc">Fintech, healthcare, nonprofit, and ecommerce clients. +64% e-commerce profitability for Prinker Inc. +40% patient inquiries for a virtual care clinic.</p>
+        </div>
+
+        <div class="timeline-item">
+          <span class="timeline-dot"></span>
+          <div class="timeline-org">Verta Marketing</div>
+          <div class="timeline-role">Product Designer &nbsp;·&nbsp; Nov 2022 – Apr 2023</div>
+          <p class="timeline-desc">Designed the CareerBook networking app end-to-end.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- BEYOND WORK -->
+    <section id="beyond-work" class="section">
+      <h2 class="section-title">Beyond Work</h2>
+      <hr class="section-divider" />
+      <p class="beyond-intro">Outside of design, Sasha is endlessly curious about how things work and why people make the choices they do.</p>
+
+      <div class="interests-grid">
+        <div class="interest-block">
+          <span class="emoji">🥾</span>
+          <span class="label">Hiking</span>
+        </div>
+        <div class="interest-block">
+          <span class="emoji">✈️</span>
+          <span class="label">Travel (27 countries)</span>
+        </div>
+        <div class="interest-block">
+          <span class="emoji">🍵</span>
+          <span class="label">Matcha</span>
+        </div>
+        <div class="interest-block">
+          <span class="emoji">🧘</span>
+          <span class="label">Pilates</span>
+        </div>
+        <div class="interest-block">
+          <span class="emoji">💃</span>
+          <span class="label">Dancing</span>
+        </div>
+        <div class="interest-block">
+          <span class="emoji">🍳</span>
+          <span class="label">Cooking</span>
+        </div>
+      </div>
+
+      <div class="quote-block">
+        <p>"Travel keeps my perspective fresh and my empathy sharp."</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RIGHT INFO CARD -->
+  <aside class="info-card" aria-label="Profile info">
+    <div class="info-photo">[Photo]</div>
+    <div class="info-name">Sasha Zaiats</div>
+    <div class="info-title">Senior Product Designer</div>
+    <hr class="info-divider" />
+    <div class="info-table">
+      <div class="info-row">
+        <span class="key">Based in</span>
+        <span class="val">Toronto, Canada</span>
+      </div>
+      <div class="info-row">
+        <span class="key">Originally from</span>
+        <span class="val">Kyiv, Ukraine</span>
+      </div>
+      <div class="info-row">
+        <span class="key">Active since</span>
+        <span class="val">2021</span>
+      </div>
+      <div class="info-row">
+        <span class="key">Website</span>
+        <span class="val"><a href="https://sashazaiats.com" target="_blank" rel="noopener noreferrer">sashazaiats.com</a></span>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+  const navLinks = document.querySelectorAll('.nav-link');
+  const sections = document.querySelectorAll('.section');
+
+  function activateSection(sectionId) {
+    // Update nav
+    navLinks.forEach(link => {
+      link.classList.toggle('active', link.dataset.section === sectionId);
+    });
+    // Update sections
+    sections.forEach(section => {
+      section.classList.toggle('active', section.id === sectionId);
+    });
+    // Update URL hash without scrolling
+    history.replaceState(null, '', '#' + sectionId);
+  }
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      activateSection(link.dataset.section);
+    });
+  });
+
+  // On load, check hash
+  const hash = window.location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) {
+    activateSection(hash);
+  }
+</script>
+
+</body>
+</html>
