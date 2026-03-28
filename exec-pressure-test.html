@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exec Pressure Test</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #F7F8FC;
+      color: #111827;
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+    }
+
+    .screen { display: none; }
+
+    /* ── Wordmark ── */
+    .wordmark {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #4F46E5;
+      margin-bottom: 52px;
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #111827;
+      margin-bottom: 14px;
+    }
+
+    h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+
+    .subheading {
+      font-size: 16px;
+      color: #6B7280;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    .field-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    /* ── Textarea ── */
+    .pitch-wrap { margin-bottom: 4px; }
+
+    textarea {
+      width: 100%;
+      min-height: 154px;
+      padding: 14px 16px;
+      border: 1.5px solid #E5E7EB;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      color: #111827;
+      background: #fff;
+      resize: vertical;
+      outline: none;
+      line-height: 1.6;
+      transition: border-color 0.15s;
+    }
+
+    textarea:focus { border-color: #4F46E5; }
+    textarea::placeholder { color: #9CA3AF; }
+
+    .inline-error {
+      font-size: 13px;
+      color: #DC2626;
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* ── Example chips ── */
+    .chips-wrap {
+      margin-top: 20px;
+      margin-bottom: 28px;
+    }
+
+    .chips-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #9CA3AF;
+      margin-bottom: 10px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 6px 14px;
+      border: 1.5px solid #E5E7EB;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      background: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .chip:hover {
+      border-color: #4F46E5;
+      color: #4F46E5;
+      background: #EEF2FF;
+    }
+
+    /* ── Audience ── */
+    .audience-wrap { margin-bottom: 32px; }
+
+    .segmented {
+      display: inline-flex;
+      background: #F3F4F6;
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .seg-btn {
+      padding: 7px 17px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6B7280;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .seg-btn.active {
+      background: #fff;
+      color: #111827;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* ── API Error ── */
+    .api-error-box {
+      background: #FEF2F2;
+      border: 1.5px solid #FECACA;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      display: none;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .api-error-msg {
+      font-size: 14px;
+      color: #991B1B;
+      flex: 1;
+    }
+
+    .retry-btn {
+      font-size: 13px;
+      font-weight: 600;
+      color: #DC2626;
+      background: none;
+      border: 1.5px solid #FECACA;
+      border-radius: 6px;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .retry-btn:hover { background: #FEE2E2; }
+
+    /* ── CTA button ── */
+    .cta-btn {
+      width: 100%;
+      padding: 14px 24px;
+      background: #4F46E5;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .cta-btn:hover { background: #4338CA; }
+    .cta-btn:active { transform: scale(0.99); }
+
+    /* ── Loading ── */
+    #screen-loading {
+      min-height: 70vh;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 3px solid #E5E7EB;
+      border-top-color: #4F46E5;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin-bottom: 28px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-msg {
+      font-size: 18px;
+      font-weight: 500;
+      color: #374151;
+      transition: opacity 0.3s ease;
+    }
+
+    /* ── Output ── */
+    .output-meta {
+      font-size: 14px;
+      color: #9CA3AF;
+      margin-bottom: 32px;
+    }
+
+    .questions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .q-card {
+      background: #fff;
+      border: 1.5px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 20px 22px;
+    }
+
+    .q-number {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #9CA3AF;
+      margin-bottom: 8px;
+    }
+
+    .q-text {
+      font-size: 16px;
+      font-weight: 600;
+      color: #111827;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .q-why {
+      font-size: 13px;
+      color: #6B7280;
+      line-height: 1.5;
+      padding-left: 12px;
+      border-left: 2px solid #E9EBF0;
+      margin-bottom: 14px;
+    }
+
+    .prepare-toggle {
+      font-size: 13px;
+      font-weight: 500;
+      color: #4F46E5;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .prepare-toggle:hover { color: #4338CA; }
+
+    .toggle-chevron {
+      display: inline-block;
+      font-style: normal;
+      font-size: 10px;
+      transition: transform 0.15s;
+    }
+
+    .prepare-area {
+      display: none;
+      margin-top: 12px;
+    }
+
+    .prepare-area textarea {
+      min-height: 80px;
+      font-size: 14px;
+      border-color: #E5E7EB;
+    }
+
+    /* ── Weak spots ── */
+    .weak-spots {
+      background: #FFFBEB;
+      border: 1.5px solid #FDE68A;
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin-bottom: 28px;
+    }
+
+    .weak-spots-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #B45309;
+      margin-bottom: 10px;
+    }
+
+    .weak-spots-body {
+      font-size: 15px;
+      color: #451A03;
+      line-height: 1.7;
+    }
+
+    /* ── Output actions ── */
+    .output-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-outline {
+      flex: 1;
+      padding: 12px 18px;
+      border: 1.5px solid #E5E7EB;
+      border-radius: 8px;
+      background: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-outline:hover {
+      border-color: #D1D5DB;
+      background: #F9FAFB;
+    }
+
+    .btn-filled {
+      flex: 1;
+      padding: 12px 18px;
+      background: #4F46E5;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-filled:hover { background: #4338CA; }
+
+    .copy-notice {
+      font-size: 13px;
+      color: #059669;
+      text-align: center;
+      margin-top: 10px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      height: 18px;
+    }
+
+    .copy-notice.visible { opacity: 1; }
+
+    /* ── Already Used ── */
+    .used-hero {
+      text-align: center;
+      padding: 56px 0 40px;
+      border-bottom: 1.5px solid #E5E7EB;
+      margin-bottom: 40px;
+    }
+
+    .used-badge {
+      display: inline-block;
+      width: 52px;
+      height: 52px;
+      background: #EEF2FF;
+      border-radius: 50%;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 22px;
+    }
+
+    .used-badge svg { width: 24px; height: 24px; color: #4F46E5; }
+
+    .used-hero h1 {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    .used-hero p {
+      font-size: 15px;
+      color: #6B7280;
+    }
+
+    .prev-pitch {
+      background: #F9FAFB;
+      border: 1.5px solid #E5E7EB;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 36px;
+    }
+
+    .prev-pitch-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9CA3AF;
+      margin-bottom: 8px;
+    }
+
+    .prev-pitch-text {
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.7;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 500px) {
+      h1 { font-size: 26px; }
+      h2 { font-size: 22px; }
+      .output-actions { flex-direction: column; }
+      .segmented { flex-wrap: wrap; }
+      body { padding: 28px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- ── Screen 1: Input ── -->
+    <div id="screen-input" class="screen">
+      <div class="wordmark">Exec Pressure Test</div>
+
+      <h1>Find out what your exec will challenge before you're in the room.</h1>
+      <p class="subheading">Describe what you're presenting. Get the 8 hardest questions a skeptical executive would ask — so you can walk in prepared.</p>
+
+      <div class="pitch-wrap">
+        <div class="field-label">What are you about to present?</div>
+        <textarea id="pitch" placeholder="Describe your feature, initiative, or proposal. Include the goal, who it's for, and any metrics or context you have."></textarea>
+        <div id="pitch-error" class="inline-error">Add a bit more detail — what's the goal, who's it for, what does success look like?</div>
+      </div>
+
+      <div class="chips-wrap">
+        <div class="chips-label">Not sure what to write? Try an example:</div>
+        <div class="chips">
+          <button class="chip" data-example="0">AI-powered search feature</button>
+          <button class="chip" data-example="1">New user onboarding redesign</button>
+          <button class="chip" data-example="2">Expand to a new market segment</button>
+          <button class="chip" data-example="3">Remove a core legacy feature</button>
+        </div>
+      </div>
+
+      <div class="audience-wrap">
+        <div class="field-label" style="margin-bottom:10px;">Who are you presenting to?</div>
+        <div class="segmented" id="audience-toggle">
+          <button class="seg-btn active" data-audience="CPO">CPO</button>
+          <button class="seg-btn" data-audience="CEO">CEO</button>
+          <button class="seg-btn" data-audience="Board">Board</button>
+          <button class="seg-btn" data-audience="VP Eng">VP Eng</button>
+        </div>
+      </div>
+
+      <div id="api-error-box" class="api-error-box">
+        <span class="api-error-msg">Something went wrong. Check your API key and try again.</span>
+        <button class="retry-btn" id="retry-btn">Try again</button>
+      </div>
+
+      <button class="cta-btn" id="submit-btn">Pressure test it &rarr;</button>
+    </div>
+
+    <!-- ── Screen 2: Loading ── -->
+    <div id="screen-loading" class="screen">
+      <div class="spinner"></div>
+      <div class="loading-msg" id="loading-msg">Thinking like a skeptic&hellip;</div>
+    </div>
+
+    <!-- ── Screen 3: Output ── -->
+    <div id="screen-output" class="screen">
+      <div class="wordmark">Exec Pressure Test</div>
+      <h2>8 questions to answer before you walk in.</h2>
+      <div class="output-meta" id="output-meta"></div>
+
+      <div class="questions-list" id="questions-list"></div>
+
+      <div class="weak-spots">
+        <div class="weak-spots-label">Where you're most exposed</div>
+        <div class="weak-spots-body" id="weak-spots-body"></div>
+      </div>
+
+      <div class="output-actions">
+        <button class="btn-outline" id="copy-btn">Copy all questions</button>
+        <button class="btn-filled" id="start-over-btn">Start over</button>
+      </div>
+      <div class="copy-notice" id="copy-notice">Copied to clipboard</div>
+    </div>
+
+    <!-- ── Screen 4: Already Used ── -->
+    <div id="screen-used" class="screen">
+      <div class="used-hero">
+        <div class="used-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <h1>You've already run your pressure test.</h1>
+        <p>Each session is one use only. Come back with a fresh pitch.</p>
+      </div>
+
+      <div class="prev-pitch">
+        <div class="prev-pitch-label">Your previous pitch</div>
+        <div class="prev-pitch-text" id="prev-pitch-text"></div>
+      </div>
+
+      <h2>Your previous results</h2>
+      <div class="output-meta" id="used-output-meta" style="margin-bottom:28px;"></div>
+
+      <div class="questions-list" id="used-questions-list"></div>
+
+      <div class="weak-spots">
+        <div class="weak-spots-label">Where you're most exposed</div>
+        <div class="weak-spots-body" id="used-weak-spots-body"></div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+
+  <script>
+    // ── State ──────────────────────────────────────────────────
+    const WORKER_URL = "https://anthropic-proxy.sasha-zaiatss.workers.dev";
+
+    let selectedAudience = 'CPO';
+    let loadingTimer = null;
+    let currentOutput = null;
+    let currentPitch  = '';
+
+    const STORAGE_KEY = 'execPressureTest';
+
+    const EXAMPLES = [
+      `We're building AI-powered semantic search for our B2B SaaS product. Users currently rely on exact keyword matching and drop off when results miss the mark. The goal is to reduce search-failure-related churn and increase session depth. We plan to use an embedding-based retrieval system backed by an LLM. Two engineers, roughly 10–12 weeks. We don't have hard baseline metrics yet but qualitative feedback consistently points to search as a top pain point.`,
+
+      `We want to overhaul our new user onboarding flow. Current 7-day activation rate (users who complete core setup and create their first project) sits at 34%, well below the 55% industry benchmark. The redesign cuts the flow from 12 steps to 5 by removing low-value fields, adds contextual tooltips triggered by user behaviour, and introduces a sample project so users see value faster. Scope: 6 weeks of design + engineering. Success metric: 55% activation within 60 days of launch.`,
+
+      `We're proposing to move our SMB project-management tool upmarket into enterprise (1,000+ seat accounts). The enterprise market is roughly 4× larger by potential ARR. We'd need SSO, audit logs, advanced role-based permissions, and a dedicated outbound sales motion. Investment estimate: 6 engineers for 6 months plus two enterprise AEs. Evidence: three unsolicited inbound enterprise inquiries in the last quarter, and two lost deals where the blocker was missing compliance features.`,
+
+      `We want to sunset our legacy CSV import feature. It was shipped five years ago, is used by approximately 8% of active accounts (mostly long-tenure customers), and consumes around 20% of the infrastructure team's maintenance bandwidth due to brittle third-party dependencies. We would give users a 90-day migration window to our new API-based import system, backed by a migration guide. We have not communicated the deprecation to affected customers yet.`
+    ];
+
+    const LOADING_MESSAGES = [
+      'Thinking like a skeptic\u2026',
+      'Finding the gaps in your pitch\u2026',
+      'Preparing the hard questions\u2026'
+    ];
+
+    // ── Init ───────────────────────────────────────────────────
+    (function init() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try {
+          const data = JSON.parse(raw);
+          if (data && data.used) { showUsed(data); return; }
+        } catch (_) {}
+      }
+
+      showScreen('screen-input');
+    })();
+
+    // ── Screen helpers ─────────────────────────────────────────
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => {
+        s.style.display = 'none';
+      });
+      const el = document.getElementById(id);
+      if (id === 'screen-loading') {
+        el.style.display = 'flex';
+      } else {
+        el.style.display = 'block';
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Audience toggle ────────────────────────────────────────
+    document.getElementById('audience-toggle').addEventListener('click', function(e) {
+      const btn = e.target.closest('.seg-btn');
+      if (!btn) return;
+      this.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedAudience = btn.dataset.audience;
+    });
+
+    // ── Example chips ──────────────────────────────────────────
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.getElementById('pitch').value = EXAMPLES[+chip.dataset.example];
+        document.getElementById('pitch-error').style.display = 'none';
+      });
+    });
+
+    // ── Submit ─────────────────────────────────────────────────
+    document.getElementById('submit-btn').addEventListener('click', run);
+    document.getElementById('retry-btn').addEventListener('click', run);
+
+    async function run() {
+      const pitch  = document.getElementById('pitch').value.trim();
+      const pitchErr = document.getElementById('pitch-error');
+      const apiErrBox = document.getElementById('api-error-box');
+
+      if (!pitch || pitch.length < 20) {
+        pitchErr.style.display = 'block';
+        document.getElementById('pitch').focus();
+        return;
+      }
+
+      pitchErr.style.display = 'none';
+      apiErrBox.style.display = 'none';
+      currentPitch = pitch;
+
+      showScreen('screen-loading');
+      startLoading();
+
+      try {
+        const result = await callAPI(pitch, selectedAudience);
+        stopLoading();
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          used: true,
+          input: pitch,
+          audience: selectedAudience,
+          output: result
+        }));
+
+        currentOutput = result;
+        renderOutput(result, pitch, selectedAudience);
+        showScreen('screen-output');
+
+      } catch (err) {
+        stopLoading();
+        showScreen('screen-input');
+        apiErrBox.style.display = 'flex';
+        console.error('API error:', err);
+      }
+    }
+
+    // ── Anthropic API call (via Cloudflare Worker proxy) ──────
+    async function callAPI(pitch, audience) {
+      const systemPrompt =
+        `You are a seasoned Chief Product Officer and former board member with 20+ years evaluating product strategy and business cases. You know exactly where presenters are underprepared and where business logic breaks down.
+
+When the user describes a feature or initiative, generate the 8 hardest questions a skeptical ${audience} would ask. Questions must expose gaps in thinking, weak assumptions, unclear ROI, or strategic misalignment.
+
+Rules:
+- Questions must be specific to the user's input, never generic
+- Each question targets a different dimension: business value, user evidence, technical feasibility, opportunity cost, success metrics, risk, strategic fit, resource requirements
+- Do not ask questions that are already answered in the input
+- Prioritize questions the presenter is least likely to have prepared for
+
+Respond ONLY with valid JSON, no markdown, no preamble:
+{
+  "questions": [
+    {
+      "number": 1,
+      "question": "Question text",
+      "why_it_gets_asked": "One sentence on the underlying concern this question represents"
+    }
+  ],
+  "weak_spots": "2-3 sentences identifying the highest-risk areas of this pitch based on what was and was not said."
+}`;
+
+      const resp = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 2048,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: pitch }]
+        })
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(`${resp.status}: ${err?.error?.message || 'Unknown error'}`);
+      }
+
+      const data = await resp.json();
+      const text = data.content[0].text;
+
+      try {
+        return JSON.parse(text);
+      } catch (_) {
+        const m = text.match(/\{[\s\S]*\}/);
+        if (m) return JSON.parse(m[0]);
+        throw new Error('Could not parse JSON from response');
+      }
+    }
+
+    // ── Loading animation ──────────────────────────────────────
+    function startLoading() {
+      let i = 0;
+      const el = document.getElementById('loading-msg');
+      el.textContent = LOADING_MESSAGES[0];
+      el.style.opacity = '1';
+
+      loadingTimer = setInterval(() => {
+        el.style.opacity = '0';
+        setTimeout(() => {
+          i = (i + 1) % LOADING_MESSAGES.length;
+          el.textContent = LOADING_MESSAGES[i];
+          el.style.opacity = '1';
+        }, 300);
+      }, 2400);
+    }
+
+    function stopLoading() {
+      clearInterval(loadingTimer);
+      loadingTimer = null;
+    }
+
+    // ── Render output ──────────────────────────────────────────
+    function renderOutput(result, pitch, audience) {
+      document.getElementById('output-meta').textContent =
+        `for ${audience} \u00b7 based on your input`;
+      buildQuestionCards(result.questions || [], 'questions-list');
+      document.getElementById('weak-spots-body').textContent =
+        result.weak_spots || '';
+    }
+
+    function buildQuestionCards(questions, containerId) {
+      const list = document.getElementById(containerId);
+      list.innerHTML = '';
+
+      questions.forEach((q, idx) => {
+        const num = String(q.number ?? idx + 1).padStart(2, '0');
+        const card = document.createElement('div');
+        card.className = 'q-card';
+        card.innerHTML = `
+          <div class="q-number">${esc(num)}</div>
+          <div class="q-text">${esc(q.question)}</div>
+          <div class="q-why">${esc(q.why_it_gets_asked || '')}</div>
+          <button class="prepare-toggle" type="button">
+            <span class="toggle-chevron">&#9658;</span> Prepare your answer
+          </button>
+          <div class="prepare-area">
+            <textarea placeholder="Draft your answer here\u2026"></textarea>
+          </div>
+        `;
+        card.querySelector('.prepare-toggle').addEventListener('click', function() {
+          const area = this.nextElementSibling;
+          const chev = this.querySelector('.toggle-chevron');
+          const open = area.style.display === 'block';
+          area.style.display = open ? 'none' : 'block';
+          chev.style.transform = open ? '' : 'rotate(90deg)';
+          if (!open) area.querySelector('textarea').focus();
+        });
+        list.appendChild(card);
+      });
+    }
+
+    // ── Copy all questions ─────────────────────────────────────
+    document.getElementById('copy-btn').addEventListener('click', () => {
+      if (!currentOutput) return;
+
+      const lines = ['EXEC PRESSURE TEST\n'];
+      (currentOutput.questions || []).forEach((q, i) => {
+        const num = String(q.number ?? i + 1).padStart(2, '0');
+        lines.push(`${num}. ${q.question}`);
+        lines.push(`    Why it gets asked: ${q.why_it_gets_asked}`);
+        lines.push('');
+      });
+      lines.push('WHERE YOU\'RE MOST EXPOSED');
+      lines.push(currentOutput.weak_spots || '');
+
+      const text = lines.join('\n');
+
+      navigator.clipboard.writeText(text).then(showCopyFeedback).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showCopyFeedback();
+      });
+    });
+
+    function showCopyFeedback() {
+      const el = document.getElementById('copy-notice');
+      el.classList.add('visible');
+      setTimeout(() => el.classList.remove('visible'), 2200);
+    }
+
+    // ── Start over ─────────────────────────────────────────────
+    document.getElementById('start-over-btn').addEventListener('click', () => {
+      // Navigate back to Screen 1 within the current session.
+      // localStorage still holds the used flag; on page reload they'll
+      // see the already-used screen with their last results.
+      document.getElementById('pitch').value = '';
+      document.getElementById('pitch-error').style.display = 'none';
+      document.getElementById('api-error-box').style.display = 'none';
+      showScreen('screen-input');
+    });
+
+    // ── Already-used screen ────────────────────────────────────
+    function showUsed(data) {
+      document.getElementById('prev-pitch-text').textContent = data.input || '';
+      document.getElementById('used-output-meta').textContent =
+        data.audience ? `for ${data.audience}` : '';
+
+      if (data.output) {
+        buildQuestionCards(data.output.questions || [], 'used-questions-list');
+        document.getElementById('used-weak-spots-body').textContent =
+          data.output.weak_spots || '';
+      }
+
+      showScreen('screen-used');
+    }
+
+    // ── Utility ────────────────────────────────────────────────
+    function esc(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+  </script>
+</body>
+</html>
