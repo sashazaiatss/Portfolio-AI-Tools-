@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Word Search</title>
+<style>
+  :root {
+    --bg: #F5F4F0;
+    --gold: #C8B560;
+    --gold-dark: #A88F3F;
+    --ink: #3A3A34;
+    --muted: #8A8A80;
+    --line: #E5E3DC;
+    --card: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    height: 100%;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+  }
+
+  .brand {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--gold-dark);
+    text-transform: uppercase;
+    margin: 0 0 4px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 22px;
+  }
+
+  .words {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+
+  .tag {
+    padding: 7px 14px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    color: var(--ink);
+    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  }
+
+  .tag.found {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #fff;
+  }
+
+  .tag.found::before {
+    content: "✓ ";
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 5px;
+    max-width: 340px;
+    margin: 0 auto;
+    padding: 12px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+
+  .tile {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  }
+
+  .tile.selecting {
+    background: rgba(200, 181, 96, 0.28);
+    border-color: var(--gold);
+  }
+
+  .tile.found {
+    background: var(--gold);
+    border-color: var(--gold-dark);
+    color: #fff;
+    transform: scale(1.03);
+  }
+
+  .status {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--muted);
+    min-height: 16px;
+  }
+
+  #playArea {
+    transition: opacity 0.3s ease;
+  }
+
+  #playArea.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .complete {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .complete.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .complete-panel {
+    width: 100%;
+    max-width: 300px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 28px 20px;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: transform 0.45s cubic-bezier(.34,1.56,.64,1), opacity 0.4s ease;
+  }
+
+  .complete.show .complete-panel {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .complete-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 4px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .complete-sub {
+    font-size: 13px;
+    color: var(--gold-dark);
+    font-weight: 600;
+    margin: 0 0 16px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .play-again {
+    position: relative;
+    z-index: 2;
+    background: var(--gold);
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s ease, transform 0.15s ease;
+  }
+
+  .play-again:hover {
+    background: var(--gold-dark);
+  }
+
+  .play-again:active {
+    transform: scale(0.97);
+  }
+
+  .confetti-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    top: -12px;
+    width: 7px;
+    height: 12px;
+    opacity: 0.95;
+    animation-name: confetti-fall;
+    animation-timing-function: cubic-bezier(.25,.46,.45,.94);
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes confetti-fall {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(220px) rotate(540deg);
+      opacity: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <p class="brand">Word Search</p>
+  <p class="subtitle">Find the 3 hidden words</p>
+
+  <div id="playArea">
+    <div class="words" id="words"></div>
+
+    <div class="grid" id="grid"></div>
+
+    <p class="status" id="status">Click a letter, then drag to spell a word.</p>
+  </div>
+
+  <div class="complete" id="complete">
+    <div class="confetti-container" id="confetti"></div>
+    <div class="complete-panel">
+      <p class="complete-title">Great job!</p>
+      <p class="complete-sub">All found!</p>
+      <button class="play-again" id="playAgain">Play again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var N = 8;
+  var LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  var DIRECTIONS = [
+    [0, 1], [0, -1], [1, 0], [-1, 0],
+    [1, 1], [1, -1], [-1, 1], [-1, -1]
+  ];
+  var WORD_SETS = [
+    ['DESIGN', 'BUILD', 'SHIP'],
+    ['ITERATE', 'FEEDBACK', 'REFINE'],
+    ['FIGMA', 'CLAUDE', 'PRODUCT'],
+    ['CRAFT', 'POLISH', 'LAUNCH']
+  ];
+  var CONFETTI_COLORS = ['#C8B560', '#A88F3F', '#D9CBA0', '#8FA888', '#3A3A34'];
+
+  var gridEl = document.getElementById('grid');
+  var wordsEl = document.getElementById('words');
+  var statusEl = document.getElementById('status');
+  var playAreaEl = document.getElementById('playArea');
+  var completeEl = document.getElementById('complete');
+  var confettiEl = document.getElementById('confetti');
+  var playAgainBtn = document.getElementById('playAgain');
+
+  var state = {
+    grid: [],
+    words: [],
+    foundWords: new Set(),
+    tiles: [],
+    lastSetIndex: -1,
+    selecting: false,
+    start: null,
+    path: []
+  };
+
+  function pickWordSet() {
+    var idx;
+    do {
+      idx = Math.floor(Math.random() * WORD_SETS.length);
+    } while (idx === state.lastSetIndex && WORD_SETS.length > 1);
+    state.lastSetIndex = idx;
+    return WORD_SETS[idx].slice();
+  }
+
+  function shuffle(arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  function tryPlaceAll(words) {
+    var grid = [];
+    for (var r = 0; r < N; r++) grid.push(new Array(N).fill(null));
+    var placements = {};
+
+    for (var w = 0; w < words.length; w++) {
+      var word = words[w];
+      var placed = false;
+
+      for (var t = 0; t < 300 && !placed; t++) {
+        var dir = DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
+        var row = Math.floor(Math.random() * N);
+        var col = Math.floor(Math.random() * N);
+        var endRow = row + dir[0] * (word.length - 1);
+        var endCol = col + dir[1] * (word.length - 1);
+        if (endRow < 0 || endRow >= N || endCol < 0 || endCol >= N) continue;
+
+        var ok = true;
+        var cells = [];
+        for (var i = 0; i < word.length; i++) {
+          var rr = row + dir[0] * i;
+          var cc = col + dir[1] * i;
+          var existing = grid[rr][cc];
+          if (existing && existing !== word[i]) { ok = false; break; }
+          cells.push({ r: rr, c: cc });
+        }
+        if (!ok) continue;
+
+        cells.forEach(function (cell, i) { grid[cell.r][cell.c] = word[i]; });
+        placements[word] = cells;
+        placed = true;
+      }
+      if (!placed) return null;
+    }
+
+    for (var r2 = 0; r2 < N; r2++) {
+      for (var c2 = 0; c2 < N; c2++) {
+        if (!grid[r2][c2]) grid[r2][c2] = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+      }
+    }
+    return { grid: grid, placements: placements };
+  }
+
+  function buildPuzzle() {
+    var words = pickWordSet();
+    var sorted = words.slice().sort(function (a, b) { return b.length - a.length; });
+    var result = null;
+    var attempts = 0;
+    while (!result && attempts < 60) {
+      result = tryPlaceAll(sorted);
+      attempts++;
+    }
+    state.grid = result.grid;
+    state.words = words;
+    state.foundWords = new Set();
+    render();
+  }
+
+  function render() {
+    // words tags
+    wordsEl.innerHTML = '';
+    state.words.forEach(function (word) {
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.dataset.word = word;
+      tag.textContent = word;
+      wordsEl.appendChild(tag);
+    });
+
+    // grid tiles
+    gridEl.innerHTML = '';
+    state.tiles = [];
+    for (var r = 0; r < N; r++) {
+      var rowTiles = [];
+      for (var c = 0; c < N; c++) {
+        var tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.textContent = state.grid[r][c];
+        tile.dataset.r = r;
+        tile.dataset.c = c;
+        gridEl.appendChild(tile);
+        rowTiles.push(tile);
+      }
+      state.tiles.push(rowTiles);
+    }
+
+    statusEl.textContent = 'Click a letter, then drag to spell a word.';
+    playAreaEl.classList.remove('hidden');
+    completeEl.classList.remove('show');
+    confettiEl.innerHTML = '';
+    state.selecting = false;
+    state.start = null;
+    state.path = [];
+  }
+
+  function tileAt(r, c) {
+    return state.tiles[r] && state.tiles[r][c];
+  }
+
+  function letterAt(cell) {
+    return state.grid[cell.r][cell.c];
+  }
+
+  function clearSelectionClasses() {
+    for (var r = 0; r < N; r++) {
+      for (var c = 0; c < N; c++) {
+        state.tiles[r][c].classList.remove('selecting');
+      }
+    }
+  }
+
+  function paintSelection() {
+    clearSelectionClasses();
+    state.path.forEach(function (cell) {
+      var t = tileAt(cell.r, cell.c);
+      if (t) t.classList.add('selecting');
+    });
+  }
+
+  function computeLine(start, end) {
+    var dr = end.r - start.r;
+    var dc = end.c - start.c;
+    if (dr !== 0 && dc !== 0 && Math.abs(dr) !== Math.abs(dc)) return null;
+    var stepR = Math.sign(dr);
+    var stepC = Math.sign(dc);
+    var len = Math.max(Math.abs(dr), Math.abs(dc)) + 1;
+    var cells = [];
+    for (var i = 0; i < len; i++) {
+      cells.push({ r: start.r + stepR * i, c: start.c + stepC * i });
+    }
+    return cells;
+  }
+
+  function findTileFromPoint(x, y) {
+    var el = document.elementFromPoint(x, y);
+    if (!el) return null;
+    var tile = el.closest ? el.closest('.tile') : null;
+    if (!tile) return null;
+    return { r: parseInt(tile.dataset.r, 10), c: parseInt(tile.dataset.c, 10) };
+  }
+
+  function startSelection(cell) {
+    state.selecting = true;
+    state.start = cell;
+    state.path = [cell];
+    paintSelection();
+  }
+
+  function updateSelection(cell) {
+    if (!state.selecting) return;
+    var line = computeLine(state.start, cell);
+    if (!line) return;
+    state.path = line;
+    paintSelection();
+  }
+
+  function endSelection() {
+    if (!state.selecting) return;
+    state.selecting = false;
+    evaluateSelection();
+    clearSelectionClasses();
+    state.path = [];
+    state.start = null;
+  }
+
+  function evaluateSelection() {
+    if (state.path.length < 2) return;
+    var str = state.path.map(letterAt).join('');
+    var rev = str.split('').reverse().join('');
+
+    for (var i = 0; i < state.words.length; i++) {
+      var word = state.words[i];
+      if (state.foundWords.has(word)) continue;
+      if (str === word || rev === word) {
+        markFound(word, state.path);
+        return;
+      }
+    }
+  }
+
+  function markFound(word, cells) {
+    state.foundWords.add(word);
+    cells.forEach(function (cell) {
+      var t = tileAt(cell.r, cell.c);
+      if (t) t.classList.add('found');
+    });
+
+    var tag = wordsEl.querySelector('[data-word="' + word + '"]');
+    if (tag) tag.classList.add('found');
+
+    if (state.foundWords.size === state.words.length) {
+      statusEl.textContent = 'All words found!';
+      setTimeout(showComplete, 250);
+    } else {
+      statusEl.textContent = 'Nice — ' + state.foundWords.size + ' of ' + state.words.length + ' found.';
+    }
+  }
+
+  function showComplete() {
+    playAreaEl.classList.add('hidden');
+    completeEl.classList.add('show');
+    launchConfetti();
+  }
+
+  function launchConfetti() {
+    confettiEl.innerHTML = '';
+    var count = 40;
+    for (var i = 0; i < count; i++) {
+      var piece = document.createElement('span');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + '%';
+      piece.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+      piece.style.animationDuration = (1.1 + Math.random() * 0.9) + 's';
+      piece.style.animationDelay = (Math.random() * 0.4) + 's';
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      confettiEl.appendChild(piece);
+    }
+  }
+
+  // Pointer event wiring
+  gridEl.addEventListener('pointerdown', function (e) {
+    var tile = e.target.closest('.tile');
+    if (!tile) return;
+    e.preventDefault();
+    var cell = { r: parseInt(tile.dataset.r, 10), c: parseInt(tile.dataset.c, 10) };
+    startSelection(cell);
+  });
+
+  document.addEventListener('pointermove', function (e) {
+    if (!state.selecting) return;
+    var cell = findTileFromPoint(e.clientX, e.clientY);
+    if (cell) updateSelection(cell);
+  });
+
+  document.addEventListener('pointerup', function () {
+    endSelection();
+  });
+
+  document.addEventListener('pointercancel', function () {
+    endSelection();
+  });
+
+  playAgainBtn.addEventListener('click', buildPuzzle);
+
+  buildPuzzle();
+})();
+</script>
+
+</body>
+</html>
