@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Design Fortune Cookie</title>
+<style>
+  :root{
+    --bg:#F5F4F0;
+    --gold:#C8B560;
+    --gold-dark:#A88F3F;
+    --ink:#2E2A22;
+    --paper:#FFFDF6;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin:0;
+    padding:0;
+    height:100%;
+    background:var(--bg);
+    font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color:var(--ink);
+  }
+
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    min-width:280px;
+    overflow:hidden;
+  }
+
+  .stage{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    max-width:340px;
+    padding:24px 16px;
+    text-align:center;
+  }
+
+  .hint{
+    font-size:12px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--gold-dark);
+    opacity:.75;
+    margin:0 0 18px;
+    transition:opacity .25s ease;
+  }
+
+  .stage.cracked .hint{ opacity:0; }
+
+  .cookie-wrap{
+    position:relative;
+    width:220px;
+    height:150px;
+    margin:0 auto;
+  }
+
+  .cookie-btn{
+    position:absolute;
+    inset:0;
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  .cookie-btn:focus-visible{
+    outline:2px solid var(--gold-dark);
+    outline-offset:4px;
+    border-radius:50%;
+  }
+
+  .cookie-btn svg{
+    width:100%;
+    height:100%;
+    overflow:visible;
+    filter:drop-shadow(0 10px 14px rgba(150,120,40,.22));
+    transition:transform .25s ease;
+  }
+
+  .stage:not(.cracked) .cookie-btn:hover svg{
+    transform:scale(1.04) rotate(-1deg);
+  }
+
+  .stage.cracked .cookie-btn{
+    cursor:default;
+    pointer-events:none;
+  }
+
+  #leftHalf, #rightHalf{
+    transition:transform .38s cubic-bezier(.34,1.4,.64,1), opacity .38s ease;
+    transform-origin:120px 80px;
+  }
+
+  .stage.cracked #leftHalf{
+    transform:translate(-22px, 10px) rotate(-16deg);
+    opacity:.92;
+  }
+  .stage.cracked #rightHalf{
+    transform:translate(22px, -6px) rotate(14deg);
+    opacity:.92;
+  }
+
+  .paper{
+    position:absolute;
+    left:50%;
+    bottom:38px;
+    width:200px;
+    padding:16px 18px;
+    background:var(--paper);
+    border-radius:3px;
+    box-shadow:0 8px 22px rgba(80,60,10,.18);
+    transform:translate(-50%, 14px) scale(.5) rotate(-2deg);
+    opacity:0;
+    pointer-events:none;
+    transition:transform .4s cubic-bezier(.2,.9,.3,1.2) .12s, opacity .35s ease .12s;
+  }
+
+  .paper::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border:1px dashed rgba(200,181,96,.55);
+    margin:4px;
+    pointer-events:none;
+  }
+
+  .stage.cracked .paper{
+    opacity:1;
+    transform:translate(-50%, -34px) scale(1) rotate(-1deg);
+  }
+
+  #fortuneText{
+    margin:0;
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',Palatino,serif;
+    font-style:italic;
+    font-size:15px;
+    line-height:1.5;
+    color:var(--ink);
+  }
+
+  .again-btn{
+    margin-top:100px;
+    font-family:inherit;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.02em;
+    color:var(--gold-dark);
+    background:transparent;
+    border:1px solid var(--gold);
+    border-radius:999px;
+    padding:9px 20px;
+    cursor:pointer;
+    opacity:0;
+    transform:translateY(6px);
+    pointer-events:none;
+    transition:opacity .3s ease .25s, transform .3s ease .25s, background .15s ease, color .15s ease;
+  }
+
+  .again-btn.show{
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+  }
+
+  .again-btn:hover{
+    background:var(--gold);
+    color:#fff;
+  }
+
+  .again-btn:active{
+    transform:scale(.97);
+  }
+</style>
+</head>
+<body>
+
+  <div class="stage" id="stage">
+    <p class="hint" id="hint">Tap the cookie</p>
+
+    <div class="cookie-wrap" id="cookieWrap">
+      <button class="cookie-btn" id="cookieBtn" aria-label="Crack the fortune cookie">
+        <svg viewBox="0 0 240 150" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="cookieGradL" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#E9D9A0"/>
+              <stop offset="1" stop-color="#C8A85C"/>
+            </linearGradient>
+            <linearGradient id="cookieGradR" x1="1" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#E4D093"/>
+              <stop offset="1" stop-color="#BE9C50"/>
+            </linearGradient>
+          </defs>
+          <g id="leftHalf">
+            <path d="M120,10
+                     C60,10 20,30 20,70
+                     C20,100 50,120 80,110
+                     C92,107 102,100 108,92
+                     L120,90
+                     L113,75 L123,58 L114,42 L120,10 Z"
+                  fill="url(#cookieGradL)" stroke="#9C7F3E" stroke-width="1.5" stroke-linejoin="round"/>
+          </g>
+          <g id="rightHalf">
+            <path d="M120,10
+                     C180,10 220,30 220,70
+                     C220,100 190,120 160,110
+                     C148,107 138,100 132,92
+                     L120,90
+                     L127,75 L117,58 L126,42 L120,10 Z"
+                  fill="url(#cookieGradR)" stroke="#9C7F3E" stroke-width="1.5" stroke-linejoin="round"/>
+          </g>
+        </svg>
+      </button>
+
+      <div class="paper" id="paper" aria-live="polite">
+        <p id="fortuneText"></p>
+      </div>
+    </div>
+
+    <button class="again-btn" id="againBtn">Crack another</button>
+  </div>
+
+<script>
+  const fortunes = [
+    "Your Figma file has 47 unused layers. So does everyone's.",
+    "The best feedback is the one that stings a little.",
+    "Ship it. You can fix the padding later.",
+    "If you have to explain the empty state, redesign the empty state.",
+    "A good onboarding flow makes itself unnecessary.",
+    "Your dark mode is not actually dark. Check again.",
+    "The client doesn't hate the color. They hate that you didn't ask why.",
+    "Delete the modal. Nobody asked for the modal.",
+    "Consistency beats cleverness, every single time.",
+    "You will rename this file 'final_v2_FINAL' by Friday.",
+    "White space is not empty. It's doing its job.",
+    "If the button needs a tooltip explaining what it does, it's the wrong button.",
+    "Your prototype works. Your API will not cooperate.",
+    "Nobody reads the onboarding tour. Design for the skip button.",
+    "Great design is invisible until it's gone.",
+    "That meeting could have been a comment on the Figma file.",
+    "Users don't want more options. They want the right default.",
+    "Your portfolio needs fewer projects and better captions.",
+    "The bug is not a bug. It's an undocumented feature you'll now document.",
+    "Test it on bad WiFi before you ship it.",
+    "The grid is a guideline, not a religion.",
+    "Someone, somewhere, is using your app at 40% zoom. Design for them too.",
+    "Your critique partner is right. You just don't want them to be.",
+    "Constraints are a gift disguised as an annoyance.",
+    "That animation is 200ms too long. Trust your gut.",
+    "You'll spend three hours perfecting an icon nobody will notice.",
+    "Good copy is a design decision, not an afterthought.",
+    "Accessibility isn't a checklist. It's just good design.",
+    "Your competitor's redesign is not a strategy. Breathe.",
+    "The first idea is rarely the best idea, but it's a great warm-up."
+  ];
+
+  let lastIndex = -1;
+  let cracked = false;
+
+  const stage = document.getElementById('stage');
+  const cookieBtn = document.getElementById('cookieBtn');
+  const fortuneText = document.getElementById('fortuneText');
+  const againBtn = document.getElementById('againBtn');
+
+  function pickFortune(){
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * fortunes.length);
+    } while (fortunes.length > 1 && idx === lastIndex);
+    lastIndex = idx;
+    return fortunes[idx];
+  }
+
+  function crack(){
+    if (cracked) return;
+    cracked = true;
+    fortuneText.textContent = pickFortune();
+    stage.classList.add('cracked');
+    setTimeout(() => { againBtn.classList.add('show'); }, 260);
+  }
+
+  function reset(){
+    cracked = false;
+    stage.classList.remove('cracked');
+    againBtn.classList.remove('show');
+  }
+
+  cookieBtn.addEventListener('click', crack);
+  againBtn.addEventListener('click', reset);
+</script>
+
+</body>
+</html>
